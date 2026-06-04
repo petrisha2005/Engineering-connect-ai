@@ -21,8 +21,8 @@ async function bootstrap() {
     socket.emit("connected", { socketId: socket.id });
   });
 
-  httpServer.listen(env.PORT, () => {
-    console.log(`EngineerConnect AI API listening on port ${env.PORT}`);
+  httpServer.listen(env.PORT, "0.0.0.0", () => {
+    console.log(`Server running on port ${env.PORT}`);
   });
 }
 
@@ -30,4 +30,3 @@ void bootstrap().catch((error) => {
   console.error("Failed to start API", error);
   process.exit(1);
 });
-

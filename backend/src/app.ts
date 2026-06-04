@@ -17,10 +17,13 @@ export function createApp() {
   app.use(apiRateLimit);
   app.use(morgan("combined"));
 
+  app.get("/api/health", (_req, res) => {
+    res.json({ success: true, message: "EngineerConnect AI backend running" });
+  });
+
   app.use("/api/v1", apiRoutes);
 
   app.use(errorHandler);
 
   return app;
 }
-

@@ -16,7 +16,7 @@ import { roadmapRoutes } from "./roadmapRoutes.js";
 export const apiRoutes = Router();
 
 apiRoutes.get("/health", (_req, res) => {
-  res.json({ status: "ok", service: "engineerconnect-ai-api" });
+  res.json({ success: true, message: "EngineerConnect AI backend running" });
 });
 
 apiRoutes.use("/auth", authRoutes);
