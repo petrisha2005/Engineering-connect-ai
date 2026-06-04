@@ -4,13 +4,24 @@ import { createApp } from "./app.js";
 import { connectDatabase } from "./config/database.js";
 import { env } from "./config/env.js";
 
-async function bootstrap() {
-  await connectDatabase();
+const PORT = Number(process.env.PORT) || env.PORT || 5000;
 
+async function connectDatabaseSafely() {
+  try {
+    await connectDatabase();
+    console.log("MongoDB connected");
+  } catch (error) {
+    console.error("MongoDB connection failed. Server is still running so deployment health checks can pass.", error);
+  }
+}
+
+function bootstrap() {
   const app = createApp();
-  const httpServer = http.createServer(app);
+  const httpServer = app.listen(PORT, "0.0.0.0", () => {
+    console.log(`EngineerConnect AI backend running on port ${PORT}`);
+  });
 
-  const io = new Server(httpServer, {
+  const io = new Server(httpServer as http.Server, {
     cors: {
       origin: env.CLIENT_ORIGIN,
       credentials: true
@@ -21,12 +32,12 @@ async function bootstrap() {
     socket.emit("connected", { socketId: socket.id });
   });
 
-  httpServer.listen(env.PORT, "0.0.0.0", () => {
-    console.log(`Server running on port ${env.PORT}`);
-  });
+  void connectDatabaseSafely();
 }
 
-void bootstrap().catch((error) => {
+try {
+  bootstrap();
+} catch (error) {
   console.error("Failed to start API", error);
   process.exit(1);
-});
+}

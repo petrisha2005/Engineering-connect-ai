@@ -4,9 +4,10 @@ services:
     runtime: node
     plan: free
     region: oregon
-    buildCommand: npm install && npm run build --workspace backend
-    startCommand: npm run start --workspace backend
-    healthCheckPath: /api/v1/health
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
     autoDeploy: true
     envVars:
       - key: NODE_ENV
@@ -25,6 +26,7 @@ services:
         sync: false
       - key: FIREBASE_PRIVATE_KEY
         sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
       - key: GEMINI_API_KEY
         sync: false
-
