@@ -1,5 +1,6 @@
-import { FileText, Loader2, Sparkles, UploadCloud } from "lucide-react";
+import { CheckCircle2, Copy, Download, FileText, Loader2, Sparkles, UploadCloud } from "lucide-react";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { jsPDF } from "jspdf";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ChartCard, ChartEmpty } from "../components/charts/ChartCard";
 import { ProfileCompletionChart } from "../components/charts/ProfileCompletionChart";
@@ -17,12 +18,37 @@ function prioritySkills(report: ResumeReport) {
   }));
 }
 
+function buildResumeText(report: ResumeReport) {
+  const resume = report.improvedResume;
+  const lines: string[] = [];
+  if (resume.fullName) lines.push(resume.fullName.toUpperCase());
+  const contact = [resume.email, resume.phone, resume.linkedin, resume.github].filter(Boolean).join(" | ");
+  if (contact) lines.push(contact);
+  if (resume.summary) lines.push("", "PROFESSIONAL SUMMARY", resume.summary);
+  if (resume.skills.length) lines.push("", "SKILLS", resume.skills.join(", "));
+  if (resume.experience.length) lines.push("", "EXPERIENCE", ...resume.experience.map((item) => `- ${item}`));
+  if (resume.projects.length) {
+    lines.push("", "PROJECTS");
+    resume.projects.forEach((project) => {
+      lines.push(project.title);
+      if (project.description) lines.push(project.description);
+      project.bullets.forEach((bullet) => lines.push(`- ${bullet}`));
+    });
+  }
+  if (resume.education.length) lines.push("", "EDUCATION", ...resume.education.map((item) => `- ${item}`));
+  if (resume.certifications.length) lines.push("", "CERTIFICATIONS", ...resume.certifications.map((item) => `- ${item}`));
+  if (resume.achievements.length) lines.push("", "ACHIEVEMENTS", ...resume.achievements.map((item) => `- ${item}`));
+  if (resume.atsTips.length) lines.push("", "ATS TIPS", ...resume.atsTips.map((item) => `- ${item}`));
+  return lines.join("\n");
+}
+
 export function ResumeAnalyzerPage() {
   const [reports, setReports] = useState<ResumeReport[]>([]);
   const [activeReport, setActiveReport] = useState<ResumeReport | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "analyzing" | "error">("loading");
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   async function loadReports() {
     setStatus("loading");
@@ -64,6 +90,46 @@ export function ResumeAnalyzerPage() {
   }
 
   const roleFitData = useMemo(() => activeReport?.careerRoleFit.map((fit) => ({ role: fit.role, score: fit.fitScore })) ?? [], [activeReport]);
+  const keywordCoverage = activeReport ? Math.max(0, 100 - Math.min(100, activeReport.missingKeywords.length * 8)) : 0;
+  const resumeText = activeReport ? buildResumeText(activeReport) : "";
+
+  async function copyImprovedResume() {
+    if (!resumeText) return;
+    await navigator.clipboard.writeText(resumeText);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2500);
+  }
+
+  function downloadText() {
+    if (!activeReport || !resumeText) return;
+    const blob = new Blob([resumeText], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${activeReport.fileName.replace(/\.pdf$/i, "")}-ats-resume.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function downloadPdf() {
+    if (!activeReport || !resumeText) return;
+    const pdf = new jsPDF({ unit: "pt", format: "a4" });
+    const margin = 48;
+    const pageWidth = pdf.internal.pageSize.getWidth() - margin * 2;
+    const lines = pdf.splitTextToSize(resumeText, pageWidth);
+    let y = margin;
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(10);
+    lines.forEach((line: string) => {
+      if (y > 780) {
+        pdf.addPage();
+        y = margin;
+      }
+      pdf.text(line, margin, y);
+      y += 14;
+    });
+    pdf.save(`${activeReport.fileName.replace(/\.pdf$/i, "")}-ats-resume.pdf`);
+  }
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-8">
@@ -141,10 +207,18 @@ export function ResumeAnalyzerPage() {
             </ChartCard>
           </section>
 
+          <section className="mt-6 grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
+            <ChartCard title="Keyword Coverage" description="Estimated coverage after accounting for missing ATS keywords.">
+              <ProfileCompletionChart value={keywordCoverage} />
+            </ChartCard>
+            <InsightPanel title="Format Issues" values={activeReport.formatIssues ?? []} />
+          </section>
+
           <section className="mt-6 grid gap-4 lg:grid-cols-2">
             <InsightPanel title="Strengths" values={activeReport.strengths} />
             <InsightPanel title="Weak Sections" values={activeReport.weakSections} />
             <InsightPanel title="Resume Improvement Tips" values={activeReport.improvementTips} />
+            <InsightPanel title="Role Fit" values={activeReport.roleFit ? [activeReport.roleFit] : activeReport.careerRoleFit.map((fit) => `${fit.role}: ${fit.reason}`)} />
             <section className="rounded-lg border border-border bg-card p-5 shadow-sm">
               <h3 className="font-semibold">Suggested Projects</h3>
               {activeReport.suggestedProjects.length ? (
@@ -161,6 +235,40 @@ export function ResumeAnalyzerPage() {
                 <p className="mt-3 text-sm text-muted-foreground">No suggested projects returned.</p>
               )}
             </section>
+          </section>
+
+          <section className="mt-6 rounded-lg border border-border bg-card p-5 shadow-sm">
+            <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
+              <div>
+                <h3 className="text-xl font-semibold">ATS-Friendly Resume Builder</h3>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+                  Generated by Gemini from your uploaded resume. Review and edit before using it for applications.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button className="bg-muted text-foreground hover:bg-muted/80" onClick={copyImprovedResume}>
+                  {copied ? <CheckCircle2 size={16} /> : <Copy size={16} />}
+                  {copied ? "Copied" : "Copy"}
+                </Button>
+                <Button className="bg-muted text-foreground hover:bg-muted/80" onClick={downloadText}>
+                  <Download size={16} />
+                  TXT
+                </Button>
+                <Button onClick={downloadPdf}>
+                  <Download size={16} />
+                  PDF
+                </Button>
+              </div>
+            </div>
+            {resumeText ? (
+              <pre className="mt-5 max-h-[620px] overflow-auto whitespace-pre-wrap rounded-lg border border-border bg-slate-50 p-5 text-sm leading-6 text-slate-800">
+                {resumeText}
+              </pre>
+            ) : (
+              <p className="mt-5 rounded-lg border border-dashed border-border bg-muted/35 p-4 text-sm text-muted-foreground">
+                Improved resume content will appear after analysis.
+              </p>
+            )}
           </section>
 
           <section className="mt-6 rounded-lg border border-border bg-card p-5 shadow-sm">
