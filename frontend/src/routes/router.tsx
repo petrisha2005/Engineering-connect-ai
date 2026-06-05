@@ -19,6 +19,7 @@ import { ProfileDetailPage } from "../pages/ProfileDetailPage";
 import { ProfileDirectoryPage } from "../pages/ProfileDirectoryPage";
 import { ProfilePage } from "../pages/ProfilePage";
 import { ProjectDetailPage } from "../pages/ProjectDetailPage";
+import { ProjectHealthPage } from "../pages/ProjectHealthPage";
 import { ProjectsPage } from "../pages/ProjectsPage";
 import { ResumeAnalyzerPage } from "../pages/ResumeAnalyzerPage";
 import { RoadmapDetailPage } from "../pages/RoadmapDetailPage";
@@ -52,6 +53,7 @@ export const router = createBrowserRouter([
               { path: "/dashboard", element: <DashboardPage /> },
               { path: "/career-twin", element: <CareerTwinPage /> },
               { path: "/cofounder-matcher", element: <CofounderMatcherPage /> },
+              { path: "/project-health", element: <ProjectHealthPage /> },
               { path: "/community", element: <CommunityPage /> },
               { path: "/skill-exchange", element: <SkillExchangePage /> },
               { path: "/activity", element: <ActivityPage /> },
