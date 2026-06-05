@@ -1,5 +1,6 @@
 import {
   Compass,
+  Brain,
   MessagesSquare,
   FolderKanban,
   LayoutDashboard,
@@ -27,6 +28,7 @@ import { useAuthStore } from "../store/authStore";
 
 const navItems = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard, subtitle: "Overview of your network and recommendations" },
+  { label: "Career Twin", to: "/career-twin", icon: Brain, subtitle: "AI career readiness and growth intelligence" },
   { label: "Community", to: "/community", icon: MessagesSquare, subtitle: "Student feed for updates, questions, and collaboration" },
   { label: "Skill Exchange", to: "/skill-exchange", icon: Repeat2, subtitle: "Trade skills with compatible students" },
   { label: "My Activity", to: "/activity", icon: ListChecks, subtitle: "Requests, applications, and notifications" },
