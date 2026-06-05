@@ -1,17 +1,24 @@
 import { Search } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { ApplicationStatusChart } from "../components/charts/ApplicationStatusChart";
+import { ChartCard } from "../components/charts/ChartCard";
+import { ProjectTeamProgress } from "../components/charts/ProjectTeamProgress";
 import { ProjectCard } from "../components/projects/ProjectCard";
 import { Button } from "../components/ui/Button";
+import { getProjectsAnalytics } from "../services/analyticsApi";
 import { useProjectStore } from "../store/projectStore";
+import type { ProjectsAnalytics } from "../types/analytics";
 
 export function ProjectsPage() {
   const { projects, status, error, loadProjects } = useProjectStore();
   const [query, setQuery] = useState("");
   const [skill, setSkill] = useState("");
+  const [analytics, setAnalytics] = useState<ProjectsAnalytics | null>(null);
 
   useEffect(() => {
     void loadProjects({ status: "open" });
+    void getProjectsAnalytics().then(setAnalytics).catch(() => setAnalytics(null));
   }, [loadProjects]);
 
   function handleSearch(event: FormEvent) {
@@ -58,6 +65,14 @@ export function ProjectsPage() {
       {status === "ready" && projects.length === 0 && (
         <p className="rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">No open projects found.</p>
       )}
+      <section className="mb-8 grid gap-4 lg:grid-cols-2">
+        <ChartCard title="Applications On Your Projects" description="Status of applications received by projects you own.">
+          <ApplicationStatusChart counts={analytics?.applicationStats ?? { pending: 0, accepted: 0, rejected: 0 }} />
+        </ChartCard>
+        <ChartCard title="Team Completion" description="How close your projects are to their target team size.">
+          <ProjectTeamProgress items={analytics?.teamCompletionStats ?? []} />
+        </ChartCard>
+      </section>
       <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {projects.map((project) => (
           <ProjectCard key={project._id} project={project} />
@@ -66,4 +81,3 @@ export function ProjectsPage() {
     </main>
   );
 }
-

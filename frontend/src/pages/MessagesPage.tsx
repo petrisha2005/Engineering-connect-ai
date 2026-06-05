@@ -1,12 +1,15 @@
 import { Flag, Shield, Send } from "lucide-react";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { ChartCard } from "../components/charts/ChartCard";
 import { Button } from "../components/ui/Button";
 import { ApiError } from "../services/api";
+import { getMessageHealthAnalytics } from "../services/analyticsApi";
 import { useAuthStore } from "../store/authStore";
 import { acceptConnection, listConnectionRequests, rejectConnection } from "../services/connectionApi";
 import { blockUser, listConversations, listMessages, reportUser, sendMessage } from "../services/messageApi";
 import type { Connection } from "../types/connection";
+import type { MessageHealthAnalytics } from "../types/analytics";
 import type { Conversation, DirectMessage } from "../types/message";
 
 function otherParticipant(conversation: Conversation, currentUserId?: string) {
@@ -32,6 +35,7 @@ export function MessagesPage() {
   } | null>(null);
   const [blockedNotice, setBlockedNotice] = useState<string | null>(null);
   const [reportStatus, setReportStatus] = useState<string | null>(null);
+  const [messageHealth, setMessageHealth] = useState<MessageHealthAnalytics["messageHealth"] | null>(null);
   const activeId = searchParams.get("conversation");
 
   async function loadConversationList() {
@@ -58,6 +62,7 @@ export function MessagesPage() {
   useEffect(() => {
     void loadConversationList();
     void loadRequests();
+    void getMessageHealthAnalytics().then((response) => setMessageHealth(response.messageHealth)).catch(() => setMessageHealth(null));
   }, []);
 
   useEffect(() => {
@@ -156,6 +161,11 @@ export function MessagesPage() {
       ) : (
         <section className="grid min-h-[620px] overflow-hidden rounded-lg border border-border bg-card lg:grid-cols-[320px_1fr]">
           <aside className="border-b border-border lg:border-b-0 lg:border-r">
+            <div className="border-b border-border p-4">
+              <ChartCard title="Message Health" description="Recent moderation outcomes.">
+                <MessageHealthBars health={messageHealth} />
+              </ChartCard>
+            </div>
             <div className="border-b border-border p-4">
               <h2 className="font-semibold">Conversations</h2>
             </div>
@@ -278,6 +288,33 @@ export function MessagesPage() {
         </section>
       )}
     </main>
+  );
+}
+
+function MessageHealthBars({ health }: { health: MessageHealthAnalytics["messageHealth"] | null }) {
+  const total = (health?.allowed ?? 0) + (health?.warned ?? 0) + (health?.blocked ?? 0);
+  if (!health || total === 0) return <p className="text-sm text-muted-foreground">Send messages to build communication health analytics.</p>;
+
+  const items = [
+    { label: "Safe", value: health.allowed, color: "bg-emerald-500" },
+    { label: "Warnings", value: health.warned, color: "bg-amber-500" },
+    { label: "Blocked", value: health.blocked, color: "bg-red-500" }
+  ];
+
+  return (
+    <div className="grid gap-3">
+      {items.map((item) => (
+        <div key={item.label}>
+          <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+            <span>{item.label}</span>
+            <span>{item.value}</span>
+          </div>
+          <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted">
+            <div className={`h-full rounded-full ${item.color}`} style={{ width: `${Math.round((item.value / total) * 100)}%` }} />
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 

@@ -11,12 +11,16 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { ApplicationStatusChart } from "../components/charts/ApplicationStatusChart";
+import { ChartCard } from "../components/charts/ChartCard";
 import { Button } from "../components/ui/Button";
+import { getActivityAnalytics } from "../services/analyticsApi";
 import { acceptApplication, listMyApplications, listReceivedApplications, rejectApplication } from "../services/applicationApi";
 import { acceptConnection, listReceivedConnections, listSentConnections, rejectConnection } from "../services/connectionApi";
 import { createOrGetConversation } from "../services/messageApi";
 import { listNotifications, markAllNotificationsRead, markNotificationRead } from "../services/notificationApi";
 import type { NotificationItem } from "../types/activity";
+import type { ActivityAnalytics } from "../types/analytics";
 import type { AppUser } from "../types/auth";
 import type { Connection } from "../types/connection";
 import type { StudentProfile } from "../types/profile";
@@ -67,24 +71,27 @@ export function ActivityPage() {
   const [myApplications, setMyApplications] = useState<ProjectApplication[]>([]);
   const [receivedApplications, setReceivedApplications] = useState<ProjectApplication[]>([]);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [analytics, setAnalytics] = useState<ActivityAnalytics | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   async function loadActivity() {
     setStatus("loading");
     setError(null);
     try {
-      const [sentResponse, receivedResponse, myAppsResponse, receivedAppsResponse, notificationResponse] = await Promise.all([
+      const [sentResponse, receivedResponse, myAppsResponse, receivedAppsResponse, notificationResponse, analyticsResponse] = await Promise.all([
         listSentConnections(),
         listReceivedConnections(),
         listMyApplications(),
         listReceivedApplications(),
-        listNotifications()
+        listNotifications(),
+        getActivityAnalytics()
       ]);
       setSentConnections(sentResponse.connections ?? []);
       setReceivedConnections(receivedResponse.connections ?? []);
       setMyApplications(myAppsResponse.applications ?? []);
       setReceivedApplications(receivedAppsResponse.applications ?? []);
       setNotifications(notificationResponse.notifications ?? []);
+      setAnalytics(analyticsResponse);
       setStatus("ready");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to load activity");
@@ -201,6 +208,15 @@ export function ActivityPage() {
 
       {status === "ready" && (
         <section className="mt-4">
+          <div className="mb-4 grid gap-4 lg:grid-cols-2">
+            <ChartCard title="Request Status" description="Sent connection requests by status.">
+              <ApplicationStatusChart counts={analytics?.connectionRequestStatus ?? { pending: 0, accepted: 0, rejected: 0 }} />
+            </ChartCard>
+            <ChartCard title="Project Application Status" description="Project applications you submitted.">
+              <ApplicationStatusChart counts={analytics?.projectApplicationStatus ?? { pending: 0, accepted: 0, rejected: 0 }} />
+            </ChartCard>
+          </div>
+
           {activeTab === "connections" && (
             <div className="grid gap-4 lg:grid-cols-2">
               <ActivityPanel title="Received Requests" description="Students who want to connect with you.">

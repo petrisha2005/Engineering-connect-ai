@@ -3,6 +3,8 @@ import { TagList } from "../profile/ProfileCard";
 import type { Project } from "../../types/project";
 
 export function ProjectCard({ project }: { project: Project }) {
+  const progress = Math.min(100, Math.round((project.members.length / Math.max(project.maxMembers, 1)) * 100));
+
   return (
     <article className="rounded-lg border border-border bg-card p-5">
       <div className="flex items-start justify-between gap-4">
@@ -16,6 +18,15 @@ export function ProjectCard({ project }: { project: Project }) {
           {project.status.replace("_", " ")}
         </span>
       </div>
+      <div className="mt-4">
+        <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+          <span>Team progress</span>
+          <span>{progress}%</span>
+        </div>
+        <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
+          <div className="h-full rounded-full bg-primary" style={{ width: `${progress}%` }} />
+        </div>
+      </div>
       <p className="mt-4 line-clamp-3 text-sm leading-6 text-muted-foreground">{project.description}</p>
       <TagList values={project.requiredSkills.slice(0, 6)} />
       <Link className="mt-5 inline-flex text-sm font-semibold text-primary" to={`/projects/${project._id}`}>
@@ -24,4 +35,3 @@ export function ProjectCard({ project }: { project: Project }) {
     </article>
   );
 }
-

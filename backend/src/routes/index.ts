@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authRoutes } from "./authRoutes.js";
 import { activityRoutes } from "./activityRoutes.js";
 import { applicationRoutes } from "./applicationRoutes.js";
+import { analyticsRoutes } from "./analyticsRoutes.js";
 import { connectionRoutes } from "./connectionRoutes.js";
 import { feedbackRoutes } from "./feedbackRoutes.js";
 import { hackathonTeamRoutes } from "./hackathonTeamRoutes.js";
@@ -19,6 +20,7 @@ apiRoutes.get("/health", (_req, res) => {
   res.json({ success: true, message: "EngineerConnect AI backend running" });
 });
 
+apiRoutes.use("/", analyticsRoutes);
 apiRoutes.use("/auth", authRoutes);
 apiRoutes.use("/activity", activityRoutes);
 apiRoutes.use("/applications", applicationRoutes);

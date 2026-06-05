@@ -1,8 +1,14 @@
 import { ArrowRight, BadgeCheck, BriefcaseBusiness, CalendarDays, Clock, Layers3, ListChecks, Sparkles, Target } from "lucide-react";
 import { type FormEvent, type ReactNode, useEffect, useState } from "react";
+import { ChartCard } from "../components/charts/ChartCard";
+import { RoadmapDurationChart } from "../components/charts/RoadmapDurationChart";
+import { RoadmapTimeline } from "../components/charts/RoadmapTimeline";
+import { SkillGapChart } from "../components/charts/SkillGapChart";
 import { RoadmapCard } from "../components/roadmaps/RoadmapCard";
 import { Button } from "../components/ui/Button";
+import { getRoadmapsAnalytics } from "../services/analyticsApi";
 import { useRoadmapStore } from "../store/roadmapStore";
+import type { RoadmapsAnalytics } from "../types/analytics";
 import type { Certification, InterviewPreparation, PortfolioProject, Roadmap } from "../types/roadmap";
 
 function phases(roadmap: Roadmap) {
@@ -50,9 +56,11 @@ export function RoadmapsPage() {
   const [careerGoal, setCareerGoal] = useState("");
   const [generatedRoadmap, setGeneratedRoadmap] = useState<Roadmap | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [analytics, setAnalytics] = useState<RoadmapsAnalytics | null>(null);
 
   useEffect(() => {
     void loadRoadmaps();
+    void getRoadmapsAnalytics().then(setAnalytics).catch(() => setAnalytics(null));
   }, [loadRoadmaps]);
 
   async function handleSubmit(event: FormEvent) {
@@ -117,7 +125,20 @@ export function RoadmapsPage() {
       </section>
 
       {activeRoadmap ? (
-        <RoadmapDisplay roadmap={activeRoadmap} />
+        <>
+          <section className="mt-6 grid gap-4 lg:grid-cols-3">
+            <ChartCard title="Learning Progress Timeline" description="Phase-by-phase path from foundation to interview readiness.">
+              <RoadmapTimeline phases={analytics?.roadmapProgress ?? phases(activeRoadmap).map((phase, index) => ({ phase: phase.title, duration: phase.duration, progress: Math.min(100, (index + 1) * 20) }))} />
+            </ChartCard>
+            <ChartCard title="Skill Priority" description="Skills ranked from your saved roadmaps.">
+              <SkillGapChart skills={(analytics?.skillPriorityBreakdown ?? []).map((item) => ({ skill: item.skill, priority: item.priority, reason: "Roadmap priority skill.", source: "Career Roadmap" }))} />
+            </ChartCard>
+            <ChartCard title="Duration Breakdown" description="Estimated weeks across roadmap phases.">
+              <RoadmapDurationChart data={analytics?.roadmapDurationBreakdown ?? []} />
+            </ChartCard>
+          </section>
+          <RoadmapDisplay roadmap={activeRoadmap} />
+        </>
       ) : (
         status === "ready" && (
           <section className="mt-6 rounded-lg border border-dashed border-border bg-card p-8 text-center">

@@ -17,8 +17,13 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { ActivityLineChart } from "../components/charts/ActivityLineChart";
+import { ChartCard } from "../components/charts/ChartCard";
+import { MatchBreakdownChart } from "../components/charts/MatchBreakdownChart";
+import { ProfileCompletionChart } from "../components/charts/ProfileCompletionChart";
+import { SkillGapChart } from "../components/charts/SkillGapChart";
 import { Button } from "../components/ui/Button";
-import { getActivitySummary } from "../services/activityApi";
+import { getDashboardAnalytics } from "../services/analyticsApi";
 import { getSkillsToImprove } from "../services/recommendationApi";
 import { useAuthStore } from "../store/authStore";
 import { useHackathonTeamStore } from "../store/hackathonTeamStore";
@@ -34,6 +39,7 @@ import type { Project } from "../types/project";
 import type { Roadmap } from "../types/roadmap";
 import type { SkillSuggestion } from "../types/recommendation";
 import type { ActivitySummary, NotificationItem } from "../types/activity";
+import type { DashboardAnalytics } from "../types/analytics";
 
 const GITHUB_PROFILE_REGEX = /^https:\/\/(www\.)?github\.com\/[A-Za-z0-9-]+\/?$/;
 const LINKEDIN_PROFILE_REGEX = /^https:\/\/(www\.)?linkedin\.com\/in\/[A-Za-z0-9-_%]+\/?$/;
@@ -94,6 +100,7 @@ export function DashboardPage() {
   const [activitySummary, setActivitySummary] = useState<ActivitySummary | null>(null);
   const [recentActivity, setRecentActivity] = useState<NotificationItem[]>([]);
   const [activityStatus, setActivityStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
+  const [dashboardAnalytics, setDashboardAnalytics] = useState<DashboardAnalytics | null>(null);
 
   async function loadSkillSuggestions() {
     setSkillStatus("loading");
@@ -112,9 +119,15 @@ export function DashboardPage() {
   async function loadActivitySummary() {
     setActivityStatus("loading");
     try {
-      const response = await getActivitySummary();
-      setActivitySummary(response.summary);
-      setRecentActivity(response.recentActivity ?? []);
+      const response = await getDashboardAnalytics();
+      setDashboardAnalytics(response);
+      setActivitySummary({
+        pendingConnections: response.connectionsCount - response.acceptedConnectionsCount,
+        pendingApplications: response.projectApplicationsCount,
+        acceptedApplications: response.acceptedConnectionsCount,
+        receivedApplications: response.projectApplicationsReceivedCount
+      });
+      setRecentActivity([]);
       setActivityStatus("ready");
     } catch {
       setActivitySummary(null);
@@ -220,6 +233,15 @@ export function DashboardPage() {
           />
         </section>
       )}
+
+      <section className="mt-4 grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+        <ChartCard title="Weekly Activity Trend" description="Real activity from connections, applications, messages, profile updates, and roadmaps.">
+          <ActivityLineChart data={dashboardAnalytics?.weeklyActivity ?? []} />
+        </ChartCard>
+        <ChartCard title="Top Matched Skills" description="Skills that show up strongest across your recommended students.">
+          <MatchBreakdownChart data={(dashboardAnalytics?.skillMatchChart ?? []).map((item) => ({ label: item.skill, value: item.score }))} />
+        </ChartCard>
+      </section>
 
       <section className="mt-4 grid gap-4 xl:grid-cols-[0.7fr_0.8fr_1.1fr]">
         <ActivityWidget
@@ -329,10 +351,13 @@ export function DashboardPage() {
           ) : skillStatus === "error" ? (
             <ErrorState label="Unable to load skills" text={skillError ?? "Try refreshing the dashboard after backend is running."} />
           ) : skillSuggestions.length ? (
-            <div className="grid gap-3">
-              {skillSuggestions.map((suggestion) => (
-                <SkillSuggestionCard key={`${suggestion.skill}-${suggestion.source}`} suggestion={suggestion} />
-              ))}
+            <div className="grid gap-4">
+              <SkillGapChart skills={skillSuggestions} />
+              <div className="grid gap-3">
+                {skillSuggestions.map((suggestion) => (
+                  <SkillSuggestionCard key={`${suggestion.skill}-${suggestion.source}`} suggestion={suggestion} />
+                ))}
+              </div>
             </div>
           ) : (
             <EmptyState
@@ -499,16 +524,21 @@ function ProfileCompletionCard({
           <ArrowRight size={15} />
         </Link>
       </div>
-      <div className="mt-5 h-2 overflow-hidden rounded-full bg-muted">
-        <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${completionPercent}%` }} />
-      </div>
-      <div className="mt-5 grid gap-2 sm:grid-cols-2">
-        {items.map((item) => (
-          <div key={item.label} className="flex items-center gap-2 text-sm">
-            {item.complete ? <CheckCircle2 size={16} className="text-primary" /> : <CircleAlert size={16} className="text-muted-foreground" />}
-            <span className={item.complete ? "font-medium" : "text-muted-foreground"}>{item.label}</span>
+      <div className="mt-4 grid gap-4 md:grid-cols-[180px_1fr] md:items-center">
+        <ProfileCompletionChart value={completionPercent} />
+        <div>
+          <div className="h-2 overflow-hidden rounded-full bg-muted">
+            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${completionPercent}%` }} />
           </div>
-        ))}
+          <div className="mt-5 grid gap-2 sm:grid-cols-2">
+            {items.map((item) => (
+              <div key={item.label} className="flex items-center gap-2 text-sm">
+                {item.complete ? <CheckCircle2 size={16} className="text-primary" /> : <CircleAlert size={16} className="text-muted-foreground" />}
+                <span className={item.complete ? "font-medium" : "text-muted-foreground"}>{item.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
       <p className="mt-4 text-xs font-medium text-muted-foreground">
         {completedItems}/{items.length} profile signals ready
