@@ -3,6 +3,7 @@ import { Types } from "mongoose";
 import { Block } from "../models/Block.js";
 import { Connection } from "../models/Connection.js";
 import { Conversation } from "../models/Conversation.js";
+import { MentorRequest } from "../models/MentorRequest.js";
 import { Message } from "../models/Message.js";
 import { Notification } from "../models/Notification.js";
 import { Report } from "../models/Report.js";
@@ -30,16 +31,25 @@ function conversationKey(left: Types.ObjectId, right: Types.ObjectId) {
 }
 
 async function ensureConnected(left: Types.ObjectId, right: Types.ObjectId) {
-  const connection = await Connection.findOne({
-    status: "accepted",
-    $or: [
-      { requesterId: left, recipientId: right },
-      { requesterId: right, recipientId: left }
-    ]
-  });
+  const [connection, mentorRequest] = await Promise.all([
+    Connection.findOne({
+      status: "accepted",
+      $or: [
+        { requesterId: left, recipientId: right },
+        { requesterId: right, recipientId: left }
+      ]
+    }),
+    MentorRequest.findOne({
+      status: "accepted",
+      $or: [
+        { student: left, mentor: right },
+        { student: right, mentor: left }
+      ]
+    })
+  ]);
 
-  if (!connection) {
-    throw new HttpError(StatusCodes.FORBIDDEN, "NOT_CONNECTED", "Connect first to start messaging.");
+  if (!connection && !mentorRequest) {
+    throw new HttpError(StatusCodes.FORBIDDEN, "NOT_CONNECTED", "Connect first or accept mentorship before messaging.");
   }
 }
 

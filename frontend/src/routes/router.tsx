@@ -9,6 +9,7 @@ import { LandingPage } from "../pages/LandingPage";
 import { LoginPage } from "../pages/LoginPage";
 import { MatchesPage } from "../pages/MatchesPage";
 import { MessagesPage } from "../pages/MessagesPage";
+import { MentorsPage } from "../pages/MentorsPage";
 import { NewHackathonTeamPage } from "../pages/NewHackathonTeamPage";
 import { NewProjectPage } from "../pages/NewProjectPage";
 import { ProfileDetailPage } from "../pages/ProfileDetailPage";
@@ -63,6 +64,7 @@ export const router = createBrowserRouter([
               { path: "/career-roadmap", element: <RoadmapsPage /> },
               { path: "/roadmaps/:id", element: <RoadmapDetailPage /> },
               { path: "/resume-analyzer", element: <ResumeAnalyzerPage /> },
+              { path: "/mentors", element: <MentorsPage /> },
               { path: "/settings", element: <SettingsPage /> }
             ]
           }

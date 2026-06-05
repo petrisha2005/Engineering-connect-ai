@@ -17,6 +17,8 @@ const notificationSchema = new Schema(
         "roadmap_generated",
         "connection_request",
         "connection_accepted",
+        "mentor_request",
+        "mentor_request_accepted",
         "message",
         "system"
       ]

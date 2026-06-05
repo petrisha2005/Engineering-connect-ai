@@ -3,6 +3,7 @@ import {
   Check,
   Clock3,
   FolderKanban,
+  GraduationCap,
   Inbox,
   MessageCircle,
   Send,
@@ -18,19 +19,22 @@ import { getActivityAnalytics } from "../services/analyticsApi";
 import { acceptApplication, listMyApplications, listReceivedApplications, rejectApplication } from "../services/applicationApi";
 import { acceptConnection, listReceivedConnections, listSentConnections, rejectConnection } from "../services/connectionApi";
 import { createOrGetConversation } from "../services/messageApi";
+import { acceptMentorRequest, listReceivedMentorRequests, listSentMentorRequests, rejectMentorRequest } from "../services/mentorApi";
 import { listNotifications, markAllNotificationsRead, markNotificationRead } from "../services/notificationApi";
 import type { NotificationItem } from "../types/activity";
 import type { ActivityAnalytics } from "../types/analytics";
 import type { AppUser } from "../types/auth";
 import type { Connection } from "../types/connection";
+import type { MentorRequest } from "../types/mentor";
 import type { StudentProfile } from "../types/profile";
 import type { Project, ProjectApplication } from "../types/project";
 
-type ActivityTab = "connections" | "applications" | "invites" | "notifications";
+type ActivityTab = "connections" | "mentorship" | "applications" | "invites" | "notifications";
 type LoadStatus = "idle" | "loading" | "ready" | "error";
 
 const tabs: Array<{ id: ActivityTab; label: string; icon: typeof Inbox }> = [
   { id: "connections", label: "Connection Requests", icon: UserRound },
+  { id: "mentorship", label: "Mentorship", icon: GraduationCap },
   { id: "applications", label: "Project Applications", icon: FolderKanban },
   { id: "invites", label: "Sent Invites", icon: Send },
   { id: "notifications", label: "Notifications", icon: Bell }
@@ -68,6 +72,8 @@ export function ActivityPage() {
   const [error, setError] = useState<string | null>(null);
   const [sentConnections, setSentConnections] = useState<Connection[]>([]);
   const [receivedConnections, setReceivedConnections] = useState<Connection[]>([]);
+  const [sentMentorRequests, setSentMentorRequests] = useState<MentorRequest[]>([]);
+  const [receivedMentorRequests, setReceivedMentorRequests] = useState<MentorRequest[]>([]);
   const [myApplications, setMyApplications] = useState<ProjectApplication[]>([]);
   const [receivedApplications, setReceivedApplications] = useState<ProjectApplication[]>([]);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -78,9 +84,11 @@ export function ActivityPage() {
     setStatus("loading");
     setError(null);
     try {
-      const [sentResponse, receivedResponse, myAppsResponse, receivedAppsResponse, notificationResponse, analyticsResponse] = await Promise.all([
+      const [sentResponse, receivedResponse, sentMentorsResponse, receivedMentorsResponse, myAppsResponse, receivedAppsResponse, notificationResponse, analyticsResponse] = await Promise.all([
         listSentConnections(),
         listReceivedConnections(),
+        listSentMentorRequests(),
+        listReceivedMentorRequests(),
         listMyApplications(),
         listReceivedApplications(),
         listNotifications(),
@@ -88,6 +96,8 @@ export function ActivityPage() {
       ]);
       setSentConnections(sentResponse.connections ?? []);
       setReceivedConnections(receivedResponse.connections ?? []);
+      setSentMentorRequests(sentMentorsResponse.requests ?? []);
+      setReceivedMentorRequests(receivedMentorsResponse.requests ?? []);
       setMyApplications(myAppsResponse.applications ?? []);
       setReceivedApplications(receivedAppsResponse.applications ?? []);
       setNotifications(notificationResponse.notifications ?? []);
@@ -104,6 +114,7 @@ export function ActivityPage() {
   }, []);
 
   const pendingReceivedConnections = useMemo(() => receivedConnections.filter((connection) => connection.status === "pending"), [receivedConnections]);
+  const pendingReceivedMentorRequests = useMemo(() => receivedMentorRequests.filter((request) => request.status === "pending"), [receivedMentorRequests]);
   const pendingReceivedApplications = useMemo(() => receivedApplications.filter((application) => application.status === "pending"), [receivedApplications]);
   const unreadNotifications = useMemo(() => notifications.filter((notification) => !notification.readAt).length, [notifications]);
 
@@ -128,6 +139,20 @@ export function ActivityPage() {
         await acceptApplication(applicationId);
       } else {
         await rejectApplication(applicationId);
+      }
+      await loadActivity();
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function decideMentorRequest(requestId: string, decision: "accept" | "reject") {
+    setBusyId(requestId);
+    try {
+      if (decision === "accept") {
+        await acceptMentorRequest(requestId);
+      } else {
+        await rejectMentorRequest(requestId);
       }
       await loadActivity();
     } finally {
@@ -180,7 +205,7 @@ export function ActivityPage() {
             </p>
           </div>
           <div className="grid grid-cols-3 gap-2 sm:min-w-[420px]">
-            <ActivityMetric label="Pending requests" value={pendingReceivedConnections.length} />
+            <ActivityMetric label="Pending requests" value={pendingReceivedConnections.length + pendingReceivedMentorRequests.length} />
             <ActivityMetric label="Applications" value={myApplications.length + receivedApplications.length} />
             <ActivityMetric label="Unread" value={unreadNotifications} />
           </div>
@@ -254,6 +279,48 @@ export function ActivityPage() {
                   </div>
                 ) : (
                   <EmptyState title="No sent requests" text="Browse Discover or Matches to send your first connection request." action="Discover students" to="/discover" />
+                )}
+              </ActivityPanel>
+            </div>
+          )}
+
+          {activeTab === "mentorship" && (
+            <div className="grid gap-4 lg:grid-cols-2">
+              <ActivityPanel title="Received Mentor Requests" description="Students asking for your guidance.">
+                {receivedMentorRequests.length ? (
+                  <div className="grid gap-3">
+                    {receivedMentorRequests.map((request) => (
+                      <MentorRequestCard
+                        busy={busyId === request._id || busyId === displayUser(request.student).id}
+                        key={request._id}
+                        mode="received"
+                        onAccept={() => decideMentorRequest(request._id, "accept")}
+                        onMessage={() => openConversation(displayUser(request.student).id)}
+                        onReject={() => decideMentorRequest(request._id, "reject")}
+                        request={request}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState title="No mentor requests received" text="Requests from students who need guidance will appear here." action="Create mentor profile" to="/mentors" />
+                )}
+              </ActivityPanel>
+
+              <ActivityPanel title="Sent Mentor Requests" description="Mentorship requests you sent.">
+                {sentMentorRequests.length ? (
+                  <div className="grid gap-3">
+                    {sentMentorRequests.map((request) => (
+                      <MentorRequestCard
+                        busy={busyId === displayUser(request.mentor).id}
+                        key={request._id}
+                        mode="sent"
+                        onMessage={() => openConversation(displayUser(request.mentor).id)}
+                        request={request}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState title="No mentor requests sent" text="Find mentors who match your goals and send your first mentorship request." action="Find mentors" to="/mentors" />
                 )}
               </ActivityPanel>
             </div>
@@ -411,6 +478,67 @@ function ConnectionCard({
             </Button>
           )}
           {mode === "received" && connection.status === "pending" && (
+            <>
+              <Button disabled={busy} onClick={onAccept}>
+                <Check size={16} />
+                Accept
+              </Button>
+              <Button className="bg-muted text-foreground hover:bg-muted/80" disabled={busy} onClick={onReject}>
+                <X size={16} />
+                Reject
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function MentorRequestCard({
+  busy,
+  mode,
+  onAccept,
+  onMessage,
+  onReject,
+  request
+}: {
+  busy?: boolean;
+  mode: "received" | "sent";
+  onAccept?: () => void;
+  onMessage?: () => void;
+  onReject?: () => void;
+  request: MentorRequest;
+}) {
+  const other = displayUser(mode === "received" ? request.student : request.mentor);
+  const mentorProfile = typeof request.mentorProfile === "string" ? null : request.mentorProfile;
+
+  return (
+    <article className="rounded-lg border border-border p-4">
+      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-semibold">{other.name}</p>
+            <StatusBadge status={request.status} />
+            <span className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">
+              {request.compatibilityScore}% match
+            </span>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {mode === "received" ? other.email || "Student requesting mentorship" : mentorProfile ? mentorProfile.currentRole : other.email || "Mentor"}
+          </p>
+          {request.message && <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground">{request.message}</p>}
+          {request.matchingReasons?.length ? <TagRow values={request.matchingReasons.slice(0, 3)} /> : null}
+          <p className="mt-2 text-xs text-muted-foreground">Requested {new Date(request.createdAt).toLocaleDateString()}</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {request.status === "accepted" && onMessage && (
+            <Button className="bg-primary text-primary-foreground" disabled={busy} onClick={onMessage}>
+              <MessageCircle size={16} />
+              Message
+            </Button>
+          )}
+          {mode === "received" && request.status === "pending" && (
             <>
               <Button disabled={busy} onClick={onAccept}>
                 <Check size={16} />

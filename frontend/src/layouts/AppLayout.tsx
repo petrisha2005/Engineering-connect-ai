@@ -10,6 +10,7 @@ import {
   Network,
   ListChecks,
   FileText,
+  GraduationCap,
   Search,
   Settings,
   Trophy,
@@ -31,6 +32,7 @@ const navItems = [
   { label: "Hackathons", to: "/hackathons", aliases: ["/hackathon-builder"], icon: Trophy, subtitle: "Build and join hackathon teams" },
   { label: "Roadmaps", to: "/roadmaps", aliases: ["/career-roadmap"], icon: Map, subtitle: "AI-generated career roadmaps" },
   { label: "Resume Analyzer", to: "/resume-analyzer", icon: FileText, subtitle: "AI resume ATS and skill gap analysis" },
+  { label: "Mentors", to: "/mentors", icon: GraduationCap, subtitle: "Find seniors, alumni, and career mentors" },
   { label: "Messages", to: "/messages", icon: MessageCircle, subtitle: "Chat with accepted connections" },
   { label: "My Profile", to: "/profile", icon: UserRound, subtitle: "Your student profile and links" },
   { label: "Settings", to: "/settings", icon: Settings, subtitle: "Account preferences" }
