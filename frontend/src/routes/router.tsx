@@ -15,6 +15,7 @@ import { MessagesPage } from "../pages/MessagesPage";
 import { MentorsPage } from "../pages/MentorsPage";
 import { NewHackathonTeamPage } from "../pages/NewHackathonTeamPage";
 import { NewProjectPage } from "../pages/NewProjectPage";
+import { OpportunitiesPage } from "../pages/OpportunitiesPage";
 import { ProfileDetailPage } from "../pages/ProfileDetailPage";
 import { ProfileDirectoryPage } from "../pages/ProfileDirectoryPage";
 import { ProfilePage } from "../pages/ProfilePage";
@@ -52,6 +53,7 @@ export const router = createBrowserRouter([
             children: [
               { path: "/dashboard", element: <DashboardPage /> },
               { path: "/career-twin", element: <CareerTwinPage /> },
+              { path: "/opportunities", element: <OpportunitiesPage /> },
               { path: "/cofounder-matcher", element: <CofounderMatcherPage /> },
               { path: "/project-health", element: <ProjectHealthPage /> },
               { path: "/community", element: <CommunityPage /> },

@@ -1,6 +1,7 @@
 import {
   Compass,
   Brain,
+  BriefcaseBusiness,
   Handshake,
   Activity,
   MessagesSquare,
@@ -31,6 +32,7 @@ import { useAuthStore } from "../store/authStore";
 const navItems = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard, subtitle: "Overview of your network and recommendations" },
   { label: "Career Twin", to: "/career-twin", icon: Brain, subtitle: "AI career readiness and growth intelligence" },
+  { label: "Opportunities", to: "/opportunities", icon: BriefcaseBusiness, subtitle: "AI-matched internships, programs, and applications" },
   { label: "Co-Founder Matcher", to: "/cofounder-matcher", icon: Handshake, subtitle: "Find startup co-founders" },
   { label: "Project Health", to: "/project-health", icon: Activity, subtitle: "AI project manager and risk dashboard" },
   { label: "Community", to: "/community", icon: MessagesSquare, subtitle: "Student feed for updates, questions, and collaboration" },
