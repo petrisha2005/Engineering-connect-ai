@@ -65,6 +65,38 @@ export const createSession = asyncHandler(async (req, res) => {
   res.status(StatusCodes.OK).json({ success: true, user, token: createBackendToken(user) });
 });
 
+export const syncFirebaseSession = asyncHandler(async (req, res) => {
+  const idToken =
+    typeof req.body?.idToken === "string"
+      ? req.body.idToken
+      : req.header("Authorization")?.replace("Bearer ", "") ?? "";
+
+  if (!idToken) {
+    throw new HttpError(StatusCodes.UNAUTHORIZED, "UNAUTHORIZED", "Missing auth token");
+  }
+
+  const decoded = await firebaseAuth.verifyIdToken(idToken);
+  const email = decoded.email;
+
+  if (!email) {
+    throw new HttpError(StatusCodes.UNAUTHORIZED, "UNAUTHORIZED", "Firebase token has no email");
+  }
+
+  const user = await User.findOneAndUpdate(
+    { firebaseUid: decoded.uid },
+    {
+      firebaseUid: decoded.uid,
+      email,
+      displayName: decoded.name ?? email.split("@")[0],
+      photoURL: decoded.picture,
+      lastLoginAt: new Date()
+    },
+    { new: true, upsert: true, setDefaultsOnInsert: true }
+  ).populate("profile");
+
+  res.status(StatusCodes.OK).json({ success: true, user, token: createBackendToken(user) });
+});
+
 export const createGoogleSession = asyncHandler(async (req, res) => {
   const idToken = typeof req.body?.idToken === "string" ? req.body.idToken : "";
 

@@ -2,9 +2,10 @@ import type { AuthResponse } from "../types/auth";
 import { apiRequest } from "./api";
 
 export function createBackendSession(firebaseIdToken?: string) {
-  return apiRequest<AuthResponse>("/auth/session", {
+  return apiRequest<AuthResponse>("/auth/sync", {
     method: "POST",
-    headers: firebaseIdToken ? { Authorization: `Bearer ${firebaseIdToken}` } : undefined
+    headers: firebaseIdToken ? { Authorization: `Bearer ${firebaseIdToken}` } : undefined,
+    body: JSON.stringify({ idToken: firebaseIdToken })
   });
 }
 

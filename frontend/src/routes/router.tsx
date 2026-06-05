@@ -16,6 +16,7 @@ import { ProfileDirectoryPage } from "../pages/ProfileDirectoryPage";
 import { ProfilePage } from "../pages/ProfilePage";
 import { ProjectDetailPage } from "../pages/ProjectDetailPage";
 import { ProjectsPage } from "../pages/ProjectsPage";
+import { ResumeAnalyzerPage } from "../pages/ResumeAnalyzerPage";
 import { RoadmapDetailPage } from "../pages/RoadmapDetailPage";
 import { RoadmapsPage } from "../pages/RoadmapsPage";
 import { RootPage } from "../pages/RootPage";
@@ -61,6 +62,7 @@ export const router = createBrowserRouter([
               { path: "/roadmaps", element: <RoadmapsPage /> },
               { path: "/career-roadmap", element: <RoadmapsPage /> },
               { path: "/roadmaps/:id", element: <RoadmapDetailPage /> },
+              { path: "/resume-analyzer", element: <ResumeAnalyzerPage /> },
               { path: "/settings", element: <SettingsPage /> }
             ]
           }

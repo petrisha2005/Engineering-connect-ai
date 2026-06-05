@@ -13,6 +13,7 @@ import { profileRoutes } from "./profileRoutes.js";
 import { projectRoutes } from "./projectRoutes.js";
 import { recommendationRoutes } from "./recommendationRoutes.js";
 import { roadmapRoutes } from "./roadmapRoutes.js";
+import { resumeAnalyzerRoutes } from "./resumeAnalyzerRoutes.js";
 
 export const apiRoutes = Router();
 
@@ -33,4 +34,5 @@ apiRoutes.use("/notifications", notificationRoutes);
 apiRoutes.use("/projects", projectRoutes);
 apiRoutes.use("/hackathon-teams", hackathonTeamRoutes);
 apiRoutes.use("/roadmaps", roadmapRoutes);
+apiRoutes.use("/resume-analyzer", resumeAnalyzerRoutes);
 apiRoutes.use("/recommendations", recommendationRoutes);
