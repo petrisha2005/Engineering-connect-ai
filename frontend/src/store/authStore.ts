@@ -97,8 +97,11 @@ async function completeGoogleRedirect() {
 }
 
 async function syncBackendSession(firebaseUser: FirebaseUser) {
-  await firebaseUser.getIdToken(true);
-  const response = await createBackendSession();
+  const firebaseIdToken = await firebaseUser.getIdToken(true);
+  if (!firebaseIdToken) {
+    throw new Error("Firebase did not return an ID token. Please sign in again.");
+  }
+  const response = await createBackendSession(firebaseIdToken);
   if (response.token) {
     localStorage.setItem("engineerconnect-backend-token", response.token);
   }

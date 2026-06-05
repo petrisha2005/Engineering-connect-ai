@@ -90,7 +90,7 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}): Pr
     });
   }
 
-  const backendToken = localStorage.getItem("engineerconnect-backend-token");
+  const backendToken = path === "/auth/session" ? null : localStorage.getItem("engineerconnect-backend-token");
   if (response.status === 401 && backendToken) {
     headers.set("Authorization", `Bearer ${backendToken}`);
     response = await fetch(url, {
