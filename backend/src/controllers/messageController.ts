@@ -116,7 +116,9 @@ export const sendMessage = asyncHandler(async (req, res) => {
       success: false,
       blocked: true,
       category: moderation.category,
-      reason: moderation.reason,
+      reason: "This message may violate platform guidelines. Please rewrite it.",
+      moderationReason: moderation.reason,
+      score: moderation.spamScore,
       suggestedRewrite: moderation.suggestedRewrite
     });
   }
@@ -133,7 +135,20 @@ export const sendMessage = asyncHandler(async (req, res) => {
     metadata: { conversationId: conversation._id, senderId: currentUser.id }
   });
 
-  res.status(StatusCodes.CREATED).json({ success: true, message });
+  res.status(StatusCodes.CREATED).json({
+    success: true,
+    message,
+    moderation:
+      moderation.action === "warned"
+        ? {
+            action: moderation.action,
+            category: moderation.category,
+            reason: moderation.reason,
+            score: moderation.spamScore,
+            suggestedRewrite: moderation.suggestedRewrite
+          }
+        : undefined
+  });
 });
 
 export const reportUser = asyncHandler(async (req, res) => {

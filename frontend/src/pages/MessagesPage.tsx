@@ -28,6 +28,7 @@ export function MessagesPage() {
     reason: string;
     category?: string;
     suggestedRewrite?: string;
+    mode?: "soft" | "blocked";
   } | null>(null);
   const [blockedNotice, setBlockedNotice] = useState<string | null>(null);
   const [reportStatus, setReportStatus] = useState<string | null>(null);
@@ -90,14 +91,23 @@ export function MessagesPage() {
       const response = await sendMessage(activeConversation._id, messageText.trim());
       setMessages((current) => [...current, response.message]);
       setMessageText("");
+      if (response.moderation?.action === "warned") {
+        setModerationWarning({
+          reason: "Please keep messages professional.",
+          category: response.moderation.category,
+          suggestedRewrite: response.moderation.suggestedRewrite,
+          mode: "soft"
+        });
+      }
       await loadConversationList();
     } catch (err) {
       if (err instanceof ApiError && typeof err.payload === "object" && err.payload && "blocked" in err.payload) {
         const payload = err.payload as { reason?: string; category?: string; suggestedRewrite?: string };
         setModerationWarning({
-          reason: payload.reason ?? "This message may be spam or unprofessional.",
+          reason: payload.reason ?? "This message may violate platform guidelines. Please rewrite it.",
           category: payload.category,
-          suggestedRewrite: payload.suggestedRewrite
+          suggestedRewrite: payload.suggestedRewrite,
+          mode: "blocked"
         });
         return;
       }
@@ -223,10 +233,14 @@ export function MessagesPage() {
             <form className="flex gap-3 border-t border-border p-4" onSubmit={handleSend}>
               <div className="min-w-0 flex-1">
                 {moderationWarning && (
-                  <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+                  <div
+                    className={`mb-3 rounded-lg border p-3 text-sm ${
+                      moderationWarning.mode === "blocked" ? "border-red-300 bg-red-50 text-red-800" : "border-amber-300 bg-amber-50 text-amber-900"
+                    }`}
+                  >
                     <div className="flex items-center gap-2 font-semibold">
                       <Flag size={15} />
-                      This message may be spam or unprofessional.
+                      {moderationWarning.mode === "blocked" ? "This message may violate platform guidelines." : "Please keep messages professional."}
                     </div>
                     <p className="mt-1">{moderationWarning.reason}</p>
                     {moderationWarning.suggestedRewrite && (

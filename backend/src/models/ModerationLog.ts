@@ -6,9 +6,10 @@ const moderationLogSchema = new Schema(
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
     messageId: { type: Schema.Types.ObjectId, ref: "Message" },
     messageTextPreview: { type: String, trim: true, maxlength: 240, default: "" },
+    spamScore: { type: Number, min: 0, default: 0, index: true },
     category: {
       type: String,
-      enum: ["safe", "spam", "harassment", "abusive", "promotional", "suspicious_link", "unprofessional", "rate_limit", "restricted"],
+      enum: ["safe", "spam", "harassment", "abusive", "sexual", "promotional", "suspicious_link", "unprofessional", "rate_limit", "restricted"],
       required: true,
       index: true
     },

@@ -14,7 +14,11 @@ export function listMessages(conversationId: string) {
 }
 
 export function sendMessage(conversationId: string, text: string) {
-  return apiRequest<{ success: boolean; message: DirectMessage }>(`/messages/${conversationId}`, {
+  return apiRequest<{
+    success: boolean;
+    message: DirectMessage;
+    moderation?: { action: "warned"; category?: string; reason: string; score?: number; suggestedRewrite?: string };
+  }>(`/messages/${conversationId}`, {
     method: "POST",
     body: JSON.stringify({ text })
   });
