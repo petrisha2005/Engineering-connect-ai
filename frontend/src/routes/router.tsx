@@ -8,6 +8,7 @@ import { CommunityPage } from "../pages/CommunityPage";
 import { DashboardPage } from "../pages/DashboardPage";
 import { HackathonTeamDetailPage } from "../pages/HackathonTeamDetailPage";
 import { HackathonTeamsPage } from "../pages/HackathonTeamsPage";
+import { InnovationScorePage } from "../pages/InnovationScorePage";
 import { LandingPage } from "../pages/LandingPage";
 import { LoginPage } from "../pages/LoginPage";
 import { MatchesPage } from "../pages/MatchesPage";
@@ -53,6 +54,7 @@ export const router = createBrowserRouter([
             children: [
               { path: "/dashboard", element: <DashboardPage /> },
               { path: "/career-twin", element: <CareerTwinPage /> },
+              { path: "/innovation-score", element: <InnovationScorePage /> },
               { path: "/opportunities", element: <OpportunitiesPage /> },
               { path: "/cofounder-matcher", element: <CofounderMatcherPage /> },
               { path: "/project-health", element: <ProjectHealthPage /> },
