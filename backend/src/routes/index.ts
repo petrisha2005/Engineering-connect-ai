@@ -38,6 +38,7 @@ apiRoutes.use("/messages", messageRoutes);
 apiRoutes.use("/notifications", notificationRoutes);
 apiRoutes.use("/projects", projectRoutes);
 apiRoutes.use("/hackathon-teams", hackathonTeamRoutes);
+apiRoutes.use("/hackathons", hackathonTeamRoutes);
 apiRoutes.use("/roadmaps", roadmapRoutes);
 apiRoutes.use("/resume-analyzer", resumeAnalyzerRoutes);
 apiRoutes.use("/recommendations", recommendationRoutes);

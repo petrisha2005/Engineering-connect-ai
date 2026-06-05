@@ -1,4 +1,4 @@
-import type { HackathonApplication, HackathonTeam, HackathonTeamPayload, RoleSuggestion } from "../types/hackathonTeam";
+import type { HackathonAnalysis, HackathonApplication, HackathonTeam, HackathonTeamPayload, RoleSuggestion } from "../types/hackathonTeam";
 import { apiRequest } from "./api";
 
 export function createHackathonTeam(payload: HackathonTeamPayload) {
@@ -20,7 +20,7 @@ export function listHackathonTeams(params: Record<string, string | number | unde
 }
 
 export function getHackathonTeamById(id: string) {
-  return apiRequest<{ team: HackathonTeam; applications: HackathonApplication[] }>(`/hackathon-teams/${id}`);
+  return apiRequest<{ team: HackathonTeam; applications: HackathonApplication[]; analysis?: HackathonAnalysis }>(`/hackathon-teams/${id}`);
 }
 
 export function applyToHackathonTeam(id: string, payload: { message: string; rolePreference?: string }) {
@@ -38,9 +38,27 @@ export function decideHackathonApplication(id: string, applicationId: string, pa
 }
 
 export function getHackathonRoleSuggestions(id: string, limit = 5) {
-  return apiRequest<{ suggestions: RoleSuggestion[] }>(`/hackathon-teams/${id}/suggestions`, {
+  return apiRequest<{ suggestions: RoleSuggestion[]; recommendations?: RoleSuggestion[] }>(`/hackathon-teams/${id}/suggestions`, {
     method: "POST",
     body: JSON.stringify({ limit })
   });
 }
 
+export function getHackathonAnalysis(id: string) {
+  return apiRequest<{ analysis: HackathonAnalysis }>(`/hackathon-teams/${id}/analysis`);
+}
+
+export function inviteHackathonTeammate(id: string, userId: string, role = "Member") {
+  return apiRequest<{ team: HackathonTeam }>(`/hackathon-teams/${id}/invite/${userId}`, {
+    method: "POST",
+    body: JSON.stringify({ role })
+  });
+}
+
+export function acceptHackathonInvite(id: string) {
+  return apiRequest<{ team: HackathonTeam }>(`/hackathon-teams/${id}/accept-invite`, { method: "POST" });
+}
+
+export function rejectHackathonInvite(id: string) {
+  return apiRequest<{ team: HackathonTeam }>(`/hackathon-teams/${id}/reject-invite`, { method: "POST" });
+}
