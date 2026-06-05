@@ -3,6 +3,7 @@ import { Types } from "mongoose";
 import { Block } from "../models/Block.js";
 import { Connection } from "../models/Connection.js";
 import { Conversation } from "../models/Conversation.js";
+import { FounderRequest } from "../models/FounderRequest.js";
 import { MentorRequest } from "../models/MentorRequest.js";
 import { Message } from "../models/Message.js";
 import { Notification } from "../models/Notification.js";
@@ -32,7 +33,7 @@ function conversationKey(left: Types.ObjectId, right: Types.ObjectId) {
 }
 
 async function ensureConnected(left: Types.ObjectId, right: Types.ObjectId) {
-  const [connection, mentorRequest, skillExchangeRequest] = await Promise.all([
+  const [connection, mentorRequest, skillExchangeRequest, founderRequest] = await Promise.all([
     Connection.findOne({
       status: "accepted",
       $or: [
@@ -53,11 +54,18 @@ async function ensureConnected(left: Types.ObjectId, right: Types.ObjectId) {
         { requester: left, recipient: right },
         { requester: right, recipient: left }
       ]
+    }),
+    FounderRequest.findOne({
+      status: "accepted",
+      $or: [
+        { requester: left, recipient: right },
+        { requester: right, recipient: left }
+      ]
     })
   ]);
 
-  if (!connection && !mentorRequest && !skillExchangeRequest) {
-    throw new HttpError(StatusCodes.FORBIDDEN, "NOT_CONNECTED", "Connect first, accept mentorship, or accept a skill exchange before messaging.");
+  if (!connection && !mentorRequest && !skillExchangeRequest && !founderRequest) {
+    throw new HttpError(StatusCodes.FORBIDDEN, "NOT_CONNECTED", "Connect first, accept mentorship, accept a skill exchange, or accept a co-founder request before messaging.");
   }
 }
 

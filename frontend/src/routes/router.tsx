@@ -3,6 +3,7 @@ import { AppLayout } from "../layouts/AppLayout";
 import { AuthLayout } from "../layouts/AuthLayout";
 import { ActivityPage } from "../pages/ActivityPage";
 import { CareerTwinPage } from "../pages/CareerTwinPage";
+import { CofounderMatcherPage } from "../pages/CofounderMatcherPage";
 import { CommunityPage } from "../pages/CommunityPage";
 import { DashboardPage } from "../pages/DashboardPage";
 import { HackathonTeamDetailPage } from "../pages/HackathonTeamDetailPage";
@@ -50,6 +51,7 @@ export const router = createBrowserRouter([
             children: [
               { path: "/dashboard", element: <DashboardPage /> },
               { path: "/career-twin", element: <CareerTwinPage /> },
+              { path: "/cofounder-matcher", element: <CofounderMatcherPage /> },
               { path: "/community", element: <CommunityPage /> },
               { path: "/skill-exchange", element: <SkillExchangePage /> },
               { path: "/activity", element: <ActivityPage /> },

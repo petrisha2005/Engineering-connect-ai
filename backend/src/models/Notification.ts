@@ -26,6 +26,9 @@ const notificationSchema = new Schema(
         "skill_exchange_accepted",
         "skill_exchange_rejected",
         "skill_exchange_completed",
+        "founder_request",
+        "founder_request_accepted",
+        "founder_request_rejected",
         "message",
         "system"
       ]
