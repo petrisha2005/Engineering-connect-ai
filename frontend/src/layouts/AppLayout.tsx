@@ -1,5 +1,6 @@
 import {
   Compass,
+  MessagesSquare,
   FolderKanban,
   LayoutDashboard,
   MessageSquarePlus,
@@ -25,6 +26,7 @@ import { useAuthStore } from "../store/authStore";
 
 const navItems = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard, subtitle: "Overview of your network and recommendations" },
+  { label: "Community", to: "/community", icon: MessagesSquare, subtitle: "Student feed for updates, questions, and collaboration" },
   { label: "My Activity", to: "/activity", icon: ListChecks, subtitle: "Requests, applications, and notifications" },
   { label: "Matches", to: "/matches", icon: UsersRound, subtitle: "AI-ranked student compatibility" },
   { label: "Discover", to: "/discover", aliases: ["/profiles"], icon: Search, subtitle: "Browse engineering student profiles" },

@@ -1,4 +1,7 @@
 export { Application } from "./Application.js";
+export { CommunityComment } from "./CommunityComment.js";
+export { CommunityPost } from "./CommunityPost.js";
+export { CommunityReport } from "./CommunityReport.js";
 export { HackathonTeam } from "./HackathonTeam.js";
 export { Match } from "./Match.js";
 export { Notification } from "./Notification.js";
@@ -10,6 +13,9 @@ export { Roadmap } from "./Roadmap.js";
 export { User } from "./User.js";
 
 export type { ApplicationDocument } from "./Application.js";
+export type { CommunityCommentDocument } from "./CommunityComment.js";
+export type { CommunityPostDocument } from "./CommunityPost.js";
+export type { CommunityReportDocument } from "./CommunityReport.js";
 export type { HackathonTeamDocument } from "./HackathonTeam.js";
 export type { MatchDocument } from "./Match.js";
 export type { NotificationDocument } from "./Notification.js";

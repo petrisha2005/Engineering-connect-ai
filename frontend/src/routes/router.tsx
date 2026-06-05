@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AppLayout } from "../layouts/AppLayout";
 import { AuthLayout } from "../layouts/AuthLayout";
 import { ActivityPage } from "../pages/ActivityPage";
+import { CommunityPage } from "../pages/CommunityPage";
 import { DashboardPage } from "../pages/DashboardPage";
 import { HackathonTeamDetailPage } from "../pages/HackathonTeamDetailPage";
 import { HackathonTeamsPage } from "../pages/HackathonTeamsPage";
@@ -46,6 +47,7 @@ export const router = createBrowserRouter([
             element: <AppLayout />,
             children: [
               { path: "/dashboard", element: <DashboardPage /> },
+              { path: "/community", element: <CommunityPage /> },
               { path: "/activity", element: <ActivityPage /> },
               { path: "/matches", element: <MatchesPage /> },
               { path: "/messages", element: <MessagesPage /> },
