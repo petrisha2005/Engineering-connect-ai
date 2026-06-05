@@ -14,6 +14,10 @@ export interface NotificationItem {
     | "connection_accepted"
     | "mentor_request"
     | "mentor_request_accepted"
+    | "skill_exchange_request"
+    | "skill_exchange_accepted"
+    | "skill_exchange_rejected"
+    | "skill_exchange_completed"
     | "message"
     | "system";
   title: string;

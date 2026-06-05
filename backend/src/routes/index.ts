@@ -16,6 +16,7 @@ import { projectRoutes } from "./projectRoutes.js";
 import { recommendationRoutes } from "./recommendationRoutes.js";
 import { roadmapRoutes } from "./roadmapRoutes.js";
 import { resumeAnalyzerRoutes } from "./resumeAnalyzerRoutes.js";
+import { skillExchangeRoutes } from "./skillExchangeRoutes.js";
 
 export const apiRoutes = Router();
 
@@ -40,3 +41,4 @@ apiRoutes.use("/hackathon-teams", hackathonTeamRoutes);
 apiRoutes.use("/roadmaps", roadmapRoutes);
 apiRoutes.use("/resume-analyzer", resumeAnalyzerRoutes);
 apiRoutes.use("/recommendations", recommendationRoutes);
+apiRoutes.use("/skill-exchange", skillExchangeRoutes);

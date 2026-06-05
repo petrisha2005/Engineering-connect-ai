@@ -10,6 +10,8 @@ export { MentorRequest } from "./MentorRequest.js";
 export { Profile } from "./Profile.js";
 export { Project } from "./Project.js";
 export { Roadmap } from "./Roadmap.js";
+export { SkillExchangeProfile } from "./SkillExchangeProfile.js";
+export { SkillExchangeRequest } from "./SkillExchangeRequest.js";
 export { User } from "./User.js";
 
 export type { ApplicationDocument } from "./Application.js";
@@ -24,4 +26,6 @@ export type { MentorRequestDocument } from "./MentorRequest.js";
 export type { ProfileDocument } from "./Profile.js";
 export type { ProjectDocument } from "./Project.js";
 export type { RoadmapDocument } from "./Roadmap.js";
+export type { SkillExchangeProfileDocument } from "./SkillExchangeProfile.js";
+export type { SkillExchangeRequestDocument } from "./SkillExchangeRequest.js";
 export type { UserDocument } from "./User.js";

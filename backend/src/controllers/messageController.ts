@@ -7,6 +7,7 @@ import { MentorRequest } from "../models/MentorRequest.js";
 import { Message } from "../models/Message.js";
 import { Notification } from "../models/Notification.js";
 import { Report } from "../models/Report.js";
+import { SkillExchangeRequest } from "../models/SkillExchangeRequest.js";
 import { moderateMessage, sanitizeMessageText } from "../services/messageModerationService.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { HttpError } from "../utils/httpError.js";
@@ -31,7 +32,7 @@ function conversationKey(left: Types.ObjectId, right: Types.ObjectId) {
 }
 
 async function ensureConnected(left: Types.ObjectId, right: Types.ObjectId) {
-  const [connection, mentorRequest] = await Promise.all([
+  const [connection, mentorRequest, skillExchangeRequest] = await Promise.all([
     Connection.findOne({
       status: "accepted",
       $or: [
@@ -45,11 +46,18 @@ async function ensureConnected(left: Types.ObjectId, right: Types.ObjectId) {
         { student: left, mentor: right },
         { student: right, mentor: left }
       ]
+    }),
+    SkillExchangeRequest.findOne({
+      status: { $in: ["accepted", "completed"] },
+      $or: [
+        { requester: left, recipient: right },
+        { requester: right, recipient: left }
+      ]
     })
   ]);
 
-  if (!connection && !mentorRequest) {
-    throw new HttpError(StatusCodes.FORBIDDEN, "NOT_CONNECTED", "Connect first or accept mentorship before messaging.");
+  if (!connection && !mentorRequest && !skillExchangeRequest) {
+    throw new HttpError(StatusCodes.FORBIDDEN, "NOT_CONNECTED", "Connect first, accept mentorship, or accept a skill exchange before messaging.");
   }
 }
 

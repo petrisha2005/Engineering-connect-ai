@@ -23,6 +23,7 @@ import { RoadmapDetailPage } from "../pages/RoadmapDetailPage";
 import { RoadmapsPage } from "../pages/RoadmapsPage";
 import { RootPage } from "../pages/RootPage";
 import { SettingsPage } from "../pages/SettingsPage";
+import { SkillExchangePage } from "../pages/SkillExchangePage";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PublicOnlyRoute } from "./PublicOnlyRoute";
 
@@ -48,6 +49,7 @@ export const router = createBrowserRouter([
             children: [
               { path: "/dashboard", element: <DashboardPage /> },
               { path: "/community", element: <CommunityPage /> },
+              { path: "/skill-exchange", element: <SkillExchangePage /> },
               { path: "/activity", element: <ActivityPage /> },
               { path: "/matches", element: <MatchesPage /> },
               { path: "/messages", element: <MessagesPage /> },
