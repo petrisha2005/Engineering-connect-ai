@@ -21,6 +21,7 @@ export function createApp() {
     res.json({ success: true, message: "EngineerConnect AI backend running" });
   });
 
+  app.use("/api", apiRoutes);
   app.use("/api/v1", apiRoutes);
 
   app.use(errorHandler);

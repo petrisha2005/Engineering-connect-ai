@@ -209,7 +209,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           user: null,
           status: "unauthenticated",
           initialized: true,
-          error: "Previous session expired. Please sign in again."
+          error: error instanceof Error ? error.message : "Unable to sync login with the backend. Please try again."
         });
       }
     });
