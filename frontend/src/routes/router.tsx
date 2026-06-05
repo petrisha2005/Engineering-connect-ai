@@ -17,12 +17,14 @@ import { MentorsPage } from "../pages/MentorsPage";
 import { NewHackathonTeamPage } from "../pages/NewHackathonTeamPage";
 import { NewProjectPage } from "../pages/NewProjectPage";
 import { OpportunitiesPage } from "../pages/OpportunitiesPage";
+import { PortfolioGeneratorPage } from "../pages/PortfolioGeneratorPage";
 import { ProfileDetailPage } from "../pages/ProfileDetailPage";
 import { ProfileDirectoryPage } from "../pages/ProfileDirectoryPage";
 import { ProfilePage } from "../pages/ProfilePage";
 import { ProjectDetailPage } from "../pages/ProjectDetailPage";
 import { ProjectHealthPage } from "../pages/ProjectHealthPage";
 import { ProjectsPage } from "../pages/ProjectsPage";
+import { PublicPortfolioPage } from "../pages/PublicPortfolioPage";
 import { ResumeAnalyzerPage } from "../pages/ResumeAnalyzerPage";
 import { RoadmapDetailPage } from "../pages/RoadmapDetailPage";
 import { RoadmapsPage } from "../pages/RoadmapsPage";
@@ -37,6 +39,7 @@ export const router = createBrowserRouter([
     element: <RootPage />,
     children: [
       { path: "/", element: <LandingPage /> },
+      { path: "/portfolio/:username", element: <PublicPortfolioPage /> },
       {
         element: <PublicOnlyRoute />,
         children: [
@@ -78,6 +81,7 @@ export const router = createBrowserRouter([
               { path: "/career-roadmap", element: <RoadmapsPage /> },
               { path: "/roadmaps/:id", element: <RoadmapDetailPage /> },
               { path: "/resume-analyzer", element: <ResumeAnalyzerPage /> },
+              { path: "/portfolio-generator", element: <PortfolioGeneratorPage /> },
               { path: "/mentors", element: <MentorsPage /> },
               { path: "/settings", element: <SettingsPage /> }
             ]
