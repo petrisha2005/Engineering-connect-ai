@@ -25,6 +25,7 @@ import { ProjectDetailPage } from "../pages/ProjectDetailPage";
 import { ProjectHealthPage } from "../pages/ProjectHealthPage";
 import { ProjectsPage } from "../pages/ProjectsPage";
 import { PublicPortfolioPage } from "../pages/PublicPortfolioPage";
+import { ResearchHubPage } from "../pages/ResearchHubPage";
 import { ResumeAnalyzerPage } from "../pages/ResumeAnalyzerPage";
 import { RoadmapDetailPage } from "../pages/RoadmapDetailPage";
 import { RoadmapsPage } from "../pages/RoadmapsPage";
@@ -82,6 +83,7 @@ export const router = createBrowserRouter([
               { path: "/roadmaps/:id", element: <RoadmapDetailPage /> },
               { path: "/resume-analyzer", element: <ResumeAnalyzerPage /> },
               { path: "/portfolio-generator", element: <PortfolioGeneratorPage /> },
+              { path: "/research-hub", element: <ResearchHubPage /> },
               { path: "/mentors", element: <MentorsPage /> },
               { path: "/settings", element: <SettingsPage /> }
             ]
