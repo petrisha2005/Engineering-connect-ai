@@ -32,6 +32,7 @@ import { RoadmapsPage } from "../pages/RoadmapsPage";
 import { RootPage } from "../pages/RootPage";
 import { SettingsPage } from "../pages/SettingsPage";
 import { SkillExchangePage } from "../pages/SkillExchangePage";
+import { StartupIncubatorPage } from "../pages/StartupIncubatorPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PublicOnlyRoute } from "./PublicOnlyRoute";
 
@@ -61,6 +62,7 @@ export const router = createBrowserRouter([
               { path: "/innovation-score", element: <InnovationScorePage /> },
               { path: "/opportunities", element: <OpportunitiesPage /> },
               { path: "/cofounder-matcher", element: <CofounderMatcherPage /> },
+              { path: "/startup-incubator", element: <StartupIncubatorPage /> },
               { path: "/project-health", element: <ProjectHealthPage /> },
               { path: "/community", element: <CommunityPage /> },
               { path: "/skill-exchange", element: <SkillExchangePage /> },

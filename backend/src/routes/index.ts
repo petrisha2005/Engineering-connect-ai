@@ -24,6 +24,7 @@ import { researchHubRoutes } from "./researchHubRoutes.js";
 import { roadmapRoutes } from "./roadmapRoutes.js";
 import { resumeAnalyzerRoutes } from "./resumeAnalyzerRoutes.js";
 import { skillExchangeRoutes } from "./skillExchangeRoutes.js";
+import { startupIncubatorRoutes } from "./startupIncubatorRoutes.js";
 
 export const apiRoutes = Router();
 
@@ -57,3 +58,4 @@ apiRoutes.use("/resume-analyzer", resumeAnalyzerRoutes);
 apiRoutes.use("/recommendations", recommendationRoutes);
 apiRoutes.use("/research-hub", researchHubRoutes);
 apiRoutes.use("/skill-exchange", skillExchangeRoutes);
+apiRoutes.use("/startups", startupIncubatorRoutes);
